@@ -1,5 +1,6 @@
 import "./App.css";
 import { useState } from "react";
+import PasswordGenerator from "./custom-hook/PasswordGenerator";
 
 export default function App() {
   const [length, setLength] = useState(4);
@@ -9,6 +10,7 @@ export default function App() {
     { title: "Include Numbers ", state: false },
     { title: "Include Symbols ", state: false },
   ]);
+  const [copied, setCopied] = useState(false);
 
   const handleCheckBoxes = (i) => {
     const updtedChecked = [...checkBoxData];
@@ -16,51 +18,67 @@ export default function App() {
     setCheckBoxData(updtedChecked);
   };
 
-  const handleCopy = () => {};
+  const handleCopy = () => {
+    navigator.clipboard.writeText(password);
+    setCopied(true);
+  };
+
+  setTimeout(() => {
+    setCopied(false);
+  }, 1000);
+
+  const { password, errorMessage, generatePassword } = PasswordGenerator();
+
   return (
     <div className="container">
       {/* Password and Copy*/}
-      <div className="header">
-        <div className="text">iwnde320349</div>
-        <button className="copy-btn" onClick={handleCopy}>
-          Copy
-        </button>
-        {/* Character Length */}
-        <div className="char-length">
-          <span>
-            <label>Character Length</label>
-            <label>{length}</label>
-          </span>
-          <input
-            type="range"
-            min="4"
-            max="20"
-            value={length}
-            onChange={(e) => setLength(e.target.value)}
-          />
+      {password && (
+        <div className="header">
+          <div className="title">{password}</div>
+          <button className="copy-btn" onClick={handleCopy}>
+            {copied ? "copied" : "copy"}
+          </button>
         </div>
-        {/* Checkboxes */}
-        <div className="checkbox">
-          {checkBoxData.map((checkbox, i) => {
-            return (
-              <div key={i}>
-                <input
-                  type="checkbox"
-                  checked={checkbox.state}
-                  onChange={() => handleCheckBoxes(i)}
-                />
-                <label>{checkbox.title}</label>
-              </div>
-            );
-          })}
-        </div>
-        {/* Strength */}
-        {/* Error Handling */}
-        {/* Generate Password */}
-        <button onClick={() => {}} className="generate-btn">
-          Generate Password
-        </button>
+      )}
+      {/* Character Length */}
+      <div className="char-length">
+        <span>
+          <label>Character Length</label>
+          <label>{length}</label>
+        </span>
+        <input
+          type="range"
+          min="4"
+          max="20"
+          value={length}
+          onChange={(e) => setLength(e.target.value)}
+        />
       </div>
+      {/* Checkboxes */}
+      <div className="checkbox">
+        {checkBoxData.map((checkbox, i) => {
+          return (
+            <div key={i}>
+              <input
+                type="checkbox"
+                checked={checkbox.state}
+                onChange={() => handleCheckBoxes(i)}
+              />
+              <label>{checkbox.title}</label>
+            </div>
+          );
+        })}
+      </div>
+      {/* Strength */}
+      {/* Error Handling */}
+      {errorMessage && <div className="error">{errorMessage}</div>}
+      {/* Generate Password */}
+      <button
+        className="generate-btn"
+        onClick={() => generatePassword(checkBoxData, length)}
+      >
+        Generate Password
+      </button>
     </div>
   );
 }
